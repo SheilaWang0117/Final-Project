@@ -355,8 +355,13 @@ DECK_CSS = """
 .tag.teal{background:#e3f6f3;color:#0b5a58;border-color:#a9dcda}
 .shot{width:100%;display:block;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 36px -24px rgba(15,34,56,.5)}
 .reveal img{margin:0;max-height:none}
-.foot{position:absolute;left:56px;right:56px;bottom:16px;display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
+.foot{position:absolute;left:56px;right:150px;bottom:16px;display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
 .dark .foot{color:#7fa3b5}
+.reveal .controls{color:var(--teal-d);bottom:4px;right:18px}
+.reveal .controls button{opacity:.85}
+.reveal .controls button:hover{opacity:1}
+.reveal .controls .navigate-left,.reveal .controls .navigate-right{transform:scale(.8)}
+.reveal.has-dark-background .controls{color:#2de2c4}
 .repo-s{font-size:15px;line-height:1.45;background:rgba(255,255,255,.92);color:var(--ink);border:2px solid var(--teal-d);border-radius:12px;padding:10px 16px}
 .repo-s a{color:var(--teal-d)}.repo-s code{font-family:"JetBrains Mono",monospace;font-size:13px}
 /* cover */
@@ -416,7 +421,7 @@ def build_slides() -> str:
 {DECK_CSS}</style></head><body>
 <div class="reveal"><div class="slides">
 
-<section class="dark" data-background-gradient="radial-gradient(circle at 85% 12%, rgba(45,226,196,.32), transparent 42%), radial-gradient(circle at 5% 110%, rgba(232,160,74,.3), transparent 40%), linear-gradient(125deg, #0a1524, #0f2a3d 60%, #0b4b54)"><div class="frame" style="justify-content:center;gap:22px">
+<section class="dark" data-background-color="#0a1524" data-background-gradient="radial-gradient(circle at 85% 12%, rgba(45,226,196,.32), transparent 42%), radial-gradient(circle at 5% 110%, rgba(232,160,74,.3), transparent 40%), linear-gradient(125deg, #0a1524, #0f2a3d 60%, #0b4b54)"><div class="frame" style="justify-content:center;gap:22px">
 <div class="kick">Business plan · final project · October 2026</div>
 <h1>Ocra Pipeline Tracker</h1>
 <p class="sub" style="font-size:27px;max-width:1000px">The operating system for a small veterinary-oncology pipeline: know whether you can fund the next milestone, and what could change that.</p>
@@ -556,7 +561,7 @@ def build_slides() -> str:
 <div class="card" style="display:flex;gap:18px;align-items:center"><span class="tag">Risks we track</span><p>Data security before sharing (no accounts yet) · source coverage for Asian regulators · model price unverified against course billing · paraphrased duplicate news (recall {e['dedupe']['recall']}).</p></div>
 </div>{foot(9, "roadmap")}</section>
 
-<section class="dark" data-background-gradient="radial-gradient(circle at 85% 12%, rgba(45,226,196,.32), transparent 42%), radial-gradient(circle at 5% 110%, rgba(232,160,74,.3), transparent 40%), linear-gradient(125deg, #0a1524, #0f2a3d 60%, #0b4b54)"><div class="frame" style="justify-content:center;gap:20px">
+<section class="dark" data-background-color="#0a1524" data-background-gradient="radial-gradient(circle at 85% 12%, rgba(45,226,196,.32), transparent 42%), radial-gradient(circle at 5% 110%, rgba(232,160,74,.3), transparent 40%), linear-gradient(125deg, #0a1524, #0f2a3d 60%, #0b4b54)"><div class="frame" style="justify-content:center;gap:20px">
 <div class="kick">09 · Team and ask</div>
 <h2 style="color:#fff;font-size:48px">Never forget our starting point: all life matters.</h2>
 <div class="grid g2" style="gap:18px">
@@ -568,7 +573,7 @@ def build_slides() -> str:
 
 </div></div>
 <script>{js}</script>
-<script>Reveal.initialize({{hash:true,progress:true,slideNumber:false,center:false,width:1280,height:720,margin:0,transition:'fade',controls:false,backgroundTransition:'fade'}});</script>
+<script>Reveal.initialize({{hash:true,progress:true,slideNumber:false,center:false,width:1280,height:720,margin:0,transition:'fade',controls:true,controlsLayout:'bottom-right',controlsTutorial:false,controlsBackArrows:'visible',backgroundTransition:'fade'}});</script>
 </body></html>"""
 
 
