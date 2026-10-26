@@ -7,7 +7,7 @@ A local operating tool for a small veterinary-oncology biotech team. It connects
 - **Real public sources, no paid search key**: ClinicalTrials.gov, Europe PMC, Federal Register, FDA guidance index, EMA document catalogue, SEC EDGAR, ECB reference rates, regulator index pages (MARA, MAFF/NVAL, APQA, PMDA, MFDS) and biotech/veterinary news feeds.
 - **Provenance everywhere**: internal, imported, external source (with link and dates), AI interpretation, planning assumption, synthetic demo, and demo fixture are labeled separately.
 
-Screens, architecture, evidence and limits: `report.html` · Slides: `slides.html` · Engineering harness: `output/harness.md` · Feature checklist: `FEATURES.md`.
+Screens, architecture, evidence and limits: `report.html` · Slides (business-plan deck, 10 slides): `slides.html` · Engineering harness: `output/harness.md` · Feature checklist: `FEATURES.md`.
 
 ---
 

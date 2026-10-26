@@ -39,10 +39,10 @@ def repo_html(slide: bool = False) -> str:
     return f"<b>GitHub repository (clone to run and grade):</b> {link} · <code>git clone {REPO_URL}.git</code> · {vis}"
 
 
-def img(name: str, top: int = 0, bottom: int | None = None, left: int = 0, width: int = 1200, quality: int = 80) -> str:
+def img(name: str, top: int = 0, bottom: int | None = None, left: int = 0, width: int = 1200, quality: int = 80, right: int | None = None) -> str:
     im = Image.open(SHOTS / f"{name}.png").convert("RGB")
     w, h = im.size
-    im = im.crop((left, top, w, min(bottom or h, h)))
+    im = im.crop((left, top, min(right or w, w), min(bottom or h, h)))
     if im.width > width:
         im = im.resize((width, int(im.height * width / im.width)), Image.LANCZOS)
     buf = io.BytesIO()
@@ -310,104 +310,265 @@ ul{{margin:4px 0 10px;padding-left:20px}} li{{margin:2px 0}}
 </body></html>"""
 
 
+FONTS = ROOT / "docs" / "vendor" / "fonts"
+
+
+def font_face() -> str:
+    """Embed the bundled OFL fonts (Space Grotesk, JetBrains Mono) so the deck renders the same offline."""
+    out = []
+    for fam, file, weight in (("Space Grotesk", "space-grotesk-latin-400-normal.woff2", 400), ("Space Grotesk", "space-grotesk-latin-500-normal.woff2", 500),
+                              ("Space Grotesk", "space-grotesk-latin-600-normal.woff2", 600), ("Space Grotesk", "space-grotesk-latin-700-normal.woff2", 700),
+                              ("JetBrains Mono", "jetbrains-mono-latin-400-normal.woff2", 400), ("JetBrains Mono", "jetbrains-mono-latin-600-normal.woff2", 600)):
+        b64 = base64.b64encode((FONTS / file).read_bytes()).decode()
+        out.append(f'@font-face{{font-family:"{fam}";font-weight:{weight};font-style:normal;font-display:swap;src:url(data:font/woff2;base64,{b64}) format("woff2")}}')
+    return "\n".join(out)
+
+
+DECK_CSS = """
+:root{--navy:#0f2238;--navy2:#16304d;--teal:#00918f;--teal-d:#00807e;--signal:#2de2c4;--amber:#e8a04a;--ink:#141a22;--ink2:#4c525a;--ink3:#737a83;--line:#e1dfd8;--sand:#f5f4f0}
+.reveal{font-family:"Space Grotesk","PingFang SC",system-ui,sans-serif;color:var(--ink);font-size:26px;letter-spacing:-.003em}
+.reveal-viewport{background:var(--sand)}
+.reveal .slides{text-align:left}
+.reveal .slides>section{height:100%;padding:0!important;box-sizing:border-box}
+.reveal .slides>section.light{background:var(--sand);background-image:radial-gradient(rgba(15,34,56,.07) 1px,transparent 1.2px);background-size:22px 22px}
+.reveal .slides>section.dark{color:#e8f3f2;background-image:linear-gradient(rgba(45,226,196,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(45,226,196,.05) 1px,transparent 1px);background-size:28px 28px}
+.frame{position:absolute;inset:0;padding:44px 56px 40px;display:flex;flex-direction:column;gap:18px}
+.kick{font-family:"JetBrains Mono",monospace;font-size:14px;letter-spacing:.14em;color:var(--teal-d);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.kick::before{content:"";width:28px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--teal),var(--amber))}
+.dark .kick{color:var(--signal)}
+.reveal h1,.reveal h2{font-family:"Space Grotesk",sans-serif;text-transform:none;margin:0;letter-spacing:-.03em;line-height:1.08}
+.reveal h2{font-size:40px;font-weight:700;color:var(--navy);max-width:1120px}
+.reveal h1{font-size:76px;font-weight:700;color:#fff}
+.sub{font-size:21px;color:var(--ink2);max-width:1100px;margin:-6px 0 0}
+.dark .sub{color:#cfe3e1}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 18px 36px -28px rgba(15,34,56,.45)}
+.card::before{content:"";position:absolute;top:-1px;left:20px;width:44px;height:3px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,var(--teal),var(--amber))}
+.card h3{margin:0 0 6px;font-size:21px;font-weight:700;color:var(--navy);letter-spacing:-.015em;text-transform:none}
+.card p,.card li{font-size:17px;line-height:1.4;color:var(--ink2);margin:0}
+.card ul{margin:4px 0 0 18px;padding:0}.card li{margin:3px 0}
+.num{font-family:"JetBrains Mono",monospace;font-weight:600;letter-spacing:-.04em;color:var(--navy);line-height:1}
+.lbl{font-family:"JetBrains Mono",monospace;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-d)}
+.src{font-size:12.5px;color:var(--ink3);line-height:1.35}
+.src a{color:var(--teal-d)}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.06em;padding:3px 9px;border-radius:999px;background:#fff4e0;color:#8a5a00;border:1px solid #f0d39a;text-transform:uppercase}
+.tag.teal{background:#e3f6f3;color:#0b5a58;border-color:#a9dcda}
+.shot{width:100%;display:block;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 36px -24px rgba(15,34,56,.5)}
+.reveal img{margin:0;max-height:none}
+.foot{position:absolute;left:56px;right:56px;bottom:16px;display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
+.dark .foot{color:#7fa3b5}
+.repo-s{font-size:15px;line-height:1.45;background:rgba(255,255,255,.92);color:var(--ink);border:2px solid var(--teal-d);border-radius:12px;padding:10px 16px}
+.repo-s a{color:var(--teal-d)}.repo-s code{font-family:"JetBrains Mono",monospace;font-size:13px}
+/* cover */
+.cover-mission{font-family:"JetBrains Mono",monospace;color:var(--amber);font-size:17px;letter-spacing:.12em}
+.chips{display:flex;gap:10px;flex-wrap:wrap}.chip{font-family:"JetBrains Mono",monospace;font-size:14px;padding:6px 12px;border-radius:999px;border:1px solid rgba(45,226,196,.45);color:#bff5ea;background:rgba(45,226,196,.08)}
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+.step{position:relative;background:var(--navy);color:#e6f4f2;padding:14px 26px 14px 30px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%,18px 50%);font-size:16px;line-height:1.25}
+.step:first-child{clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%);padding-left:20px}
+.step b{display:block;font-size:18px;color:#fff}.step span{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--signal)}
+.step:nth-child(even){background:var(--navy2)}
+/* big stat */
+.big{font-size:64px}.mid{font-size:40px}
+.vs{display:flex;align-items:flex-end;gap:18px}
+.vs .arrow{font-size:28px;color:var(--amber);padding-bottom:10px}
+/* matrix */
+.matrix{position:relative;height:430px;border-left:2px solid var(--navy);border-bottom:2px solid var(--navy);background:linear-gradient(#fff,#fff) padding-box;border-radius:0 12px 0 0}
+.matrix .q{position:absolute;width:50%;height:50%;}
+.matrix .q.tr{right:0;top:0;background:linear-gradient(135deg,rgba(45,226,196,.16),rgba(45,226,196,.04));border-radius:0 12px 0 0}
+.matrix .ax{position:absolute;font-family:"JetBrains Mono",monospace;font-size:12.5px;letter-spacing:.06em;color:var(--ink2);text-transform:uppercase}
+.matrix .dot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:14.5px;line-height:1.2;color:var(--ink);width:190px}
+.matrix .dot i{width:16px;height:16px;border-radius:50%;background:#9aa4ae;border:3px solid #fff;box-shadow:0 0 0 1px #9aa4ae}
+.matrix .dot.us i{width:26px;height:26px;background:var(--teal);box-shadow:0 0 0 6px rgba(0,145,143,.2)}
+.matrix .dot.us b{color:var(--teal-d);font-size:17px}
+.matrix .dot small{color:var(--ink3);font-size:12.5px}
+/* bars */
+.bar-row{display:grid;grid-template-columns:170px 1fr 92px;align-items:center;gap:10px;font-size:15px;margin:9px 0}
+.bar-track{height:16px;background:#f0eee8;border-radius:4px;overflow:hidden}.bar-fill{height:100%;border-radius:4px}
+.bar-row .v{font-family:"JetBrains Mono",monospace;text-align:right;font-size:14px}
+/* timeline */
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative;padding-top:26px}
+.tl::before{content:"";position:absolute;left:8px;right:8px;top:9px;height:3px;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:2px}
+.tl .card::after{content:"";position:absolute;top:-24px;left:20px;width:15px;height:15px;transform:rotate(45deg);background:#fff;border:3px solid var(--amber);border-radius:3px}
+.tl .card.now::after{background:var(--teal);border-color:var(--teal)}
+.metric{display:flex;flex-direction:column;gap:6px}
+.metric .num{font-size:40px}
+.check{color:var(--teal-d);font-weight:700}
+"""
+
+
 def build_slides() -> str:
     css = (VENDOR / "reset.css").read_text() + "\n" + (VENDOR / "reveal.css").read_text()
     js = (VENDOR / "reveal.js").read_text()
     e = EVALS
-    S = {
-        "classify": img("02_classification_proposal", top=60, bottom=900, width=1000, quality=72),
-        "runway": img("08_budget_runway", top=995, bottom=1885, left=260, width=1000, quality=72),
-        "phasemap": img("20b_phase_map_wide", width=1300, quality=74),
-        "regulatory": img("13_regulatory_documents", top=280, bottom=960, left=260, width=1000, quality=72),
-        "assistant": img("17_assistant_answer", top=430, bottom=1150, left=260, width=1000, quality=72),
-    }
     inj = e["injection"]
-    theme = """
-.reveal{font-family:"Inter","Segoe UI",system-ui,sans-serif;color:#1b1f24;font-size:34px}
-.reveal .slides{text-align:left}
-.reveal-viewport{background:#faf9f6}
-.reveal h1,.reveal h2{color:#0f2238;font-weight:800;letter-spacing:-.01em;margin:0 0 .4em}
-.reveal h1{font-size:2.1em}.reveal h2{font-size:1.45em}
-.reveal ul{margin-left:1em}.reveal li{margin:.25em 0}
-.reveal .teal{color:#00807e}.reveal .muted{color:#5a6470;font-size:.7em}
-.reveal img{border:1px solid #e2e0da;border-radius:10px;max-height:62vh;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-.reveal .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:28px;align-items:center}
-.reveal .two>div{min-width:0}
-.reveal ul.cols2{columns:2;column-gap:40px;font-size:.78em;margin-bottom:.5em}
-.reveal img.wide{width:100%;max-height:none;height:auto;display:block}
-.reveal .two img{max-width:100%;height:auto;max-height:54vh;object-fit:contain}
-.reveal .pill{display:inline-block;background:#e6f3f2;color:#0b5a58;border-radius:999px;padding:2px 14px;font-size:.6em;font-weight:700}
-.reveal .big{font-size:1.6em;font-weight:800;color:#0f2238}
-.reveal table{font-size:.55em;border-collapse:collapse;width:100%}
-.reveal th{background:#e6edf5;text-align:left;padding:6px 10px}.reveal td{padding:6px 10px;border-bottom:1px solid #e2e0da}
-.reveal .bar{height:8px;background:linear-gradient(90deg,#00918f,#2a5aa8);border-radius:4px;margin:.3em 0 .8em;width:120px}
-.reveal .progress{color:#00807e}
-.reveal .repo-s{font-size:.55em;background:#eef8f7;border:2px solid #00807e;border-radius:10px;padding:10px 16px;margin-top:.6em}
-.reveal .repo-s code{font-size:.9em}
-""" + DIAGRAM_CSS.replace(".diagram{", ".diagram{font-size:16px;")
+    S = {
+        "phasemap": img("20b_phase_map_wide", width=1400, quality=78),
+        "spend": img("08_budget_runway", top=1010, bottom=1420, left=270, right=1110, width=1100, quality=80),
+        "competitors": img("11_competitors_by_pipeline", top=300, bottom=505, left=264, right=1412, width=1200, quality=80),
+        "assistant": img("17_assistant_answer", top=505, bottom=800, left=264, right=1412, width=1200, quality=80),
+    }
+    cls_live = e["classification"]["field_accuracy"]["live"]
+    foot = lambda n, label: f'<div class="foot"><span>Ocra Pipeline Tracker · {label}</span><span>All life matters · {n:02d}/10</span></div>'
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ocra Pipeline Tracker — slides</title><style>{css}\n{theme}</style></head><body>
+<title>Ocra Pipeline Tracker: business plan</title><style>{css}
+{font_face()}
+{DECK_CSS}</style></head><body>
 <div class="reveal"><div class="slides">
 
-<section><div class="bar"></div><h1>Ocra Pipeline Tracker</h1>
-<p class="big">Can we fund the next scientific milestone, and what could change that?</p>
-<p>Milestones → budgets → cash runway → external evidence → reviewable decisions</p>
-<p class="muted">Sheila Wang · Ocra Biotechnology · Final project · Oct 2026 · all programs shown are hypothetical</p>
-<p class="repo-s">{repo_html(True)}</p></section>
+<section class="dark" data-background-gradient="radial-gradient(circle at 85% 12%, rgba(45,226,196,.32), transparent 42%), radial-gradient(circle at 5% 110%, rgba(232,160,74,.3), transparent 40%), linear-gradient(125deg, #0a1524, #0f2a3d 60%, #0b4b54)"><div class="frame" style="justify-content:center;gap:22px">
+<div class="kick">Business plan · final project · October 2026</div>
+<h1>Ocra Pipeline Tracker</h1>
+<p class="sub" style="font-size:27px;max-width:1000px">The operating system for a small veterinary-oncology pipeline: know whether you can fund the next milestone, and what could change that.</p>
+<div class="chips"><span class="chip">pipelines → budgets → runway → evidence → decisions</span><span class="chip">5 AI agents · deterministic finance</span><span class="chip">EN / 中文</span></div>
+<div class="cover-mission">// ALL LIFE MATTERS</div>
+<div class="repo-s" style="max-width:900px">{repo_html(True)}</div>
+<div class="src" style="color:#9fbfcc">Sheila Wang · Co-Founder &amp; CEO, Ocra Biotechnology · every program shown is hypothetical and every company record synthetic</div>
+</div>{foot(1, "cover")}</section>
 
-<section><h2>The problem</h2><ul>
-<li>Plans in slides, budgets in spreadsheets, bank exports in <b>HKD, CNY, USD</b></li>
-<li>A simple runway ignores the studies about to start</li>
-<li>Competitor news and guidance arrive <b>without dates, status or applicability</b></li>
-<li>Small vet-oncology teams can't justify enterprise CI and FP&amp;A tools</li></ul></section>
+<section class="light"><div class="frame">
+<div class="kick">01 · Problem</div>
+<h2>Small vet-oncology teams make funding decisions on cash they can't see clearly.</h2>
+<div class="grid" style="grid-template-columns:1.35fr 1fr;gap:22px;flex:1">
+ <div class="grid" style="gap:14px">
+  <div class="card"><h3>Finance without science</h3><p>A spreadsheet runway (cash ÷ burn) ignores the studies about to start, so it overstates how long the money lasts.</p></div>
+  <div class="card"><h3>Science without finance</h3><p>A slipped study or a new regulatory expectation is discussed in a meeting, but never turned into a dated cash effect.</p></div>
+  <div class="card"><h3>Evidence without provenance</h3><p>Competitor news and guidance are forwarded without date, status (draft or final) or applicability, across 5 jurisdictions and 4 languages.</p></div>
+ </div>
+ <div class="card" style="display:flex;flex-direction:column;justify-content:center;gap:14px;background:#0f2238;border-color:#0f2238;color:#e6f4f2">
+  <div class="lbl" style="color:#2de2c4">Same workspace, two answers</div>
+  <div class="vs"><div><div class="num big" style="color:#fff">7.2</div><div class="src" style="color:#bcd">months: simple runway</div></div><div class="arrow">vs</div><div><div class="num big" style="color:#e8a04a">4</div><div class="src" style="color:#bcd">months to the reserve breach (dated forecast, Feb 2027)</div></div></div>
+  <p style="font-size:17px;color:#cfe3e1;margin:0">Plus a <b style="color:#fff">USD 0.72M</b> funding gap on the next pilot study that the simple figure never shows.</p>
+  <div class="src" style="color:#8fb4c7">Synthetic class-demo workspace, computed by the app's deterministic core</div>
+ </div>
+</div></div>{foot(2, "problem")}</section>
 
-<section><h2>The solution</h2><ul class="cols2">
-<li>Deterministic cash, burn, runway and <span class="teal">milestone funding test</span></li>
-<li>Reviewable CSV/XLSX import</li>
-<li>Cited, dated evidence mapped to milestones</li>
-<li>Veterinary-aware regulatory scope (FDA CVM vs USDA CVB; MARA not NMPA)</li></ul>
-<img class="wide" src="{S['phasemap']}" alt="Development phase map"><p class="muted">Phase map: pipelines × 12 development phases; gates = value-inflection decisions (paw = passed · amber = next · outline = ahead)</p></section>
+<section class="light"><div class="frame">
+<div class="kick">02 · Solution</div>
+<h2>One tracker connects milestones, money and outside evidence.</h2>
+<p class="sub">Every pipeline is mapped across 12 development phases, with a decision gate at each value-inflection point.</p>
+<div class="flow">
+ <div class="step"><b>Pipelines</b><span>AI-classified profile</span></div>
+ <div class="step"><b>Milestone budgets</b><span>approved vs draft</span></div>
+ <div class="step"><b>Cash runway</b><span>HKD · CNY · USD</span></div>
+ <div class="step"><b>External evidence</b><span>cited and dated</span></div>
+ <div class="step"><b>Decisions</b><span>human-reviewed</span></div>
+</div>
+<img class="shot" src="{S['phasemap']}" alt="Development phase map">
+</div>{foot(3, "solution")}</section>
 
-<section><h2>What's different</h2><table>
-<tr><th>Existing tools</th><th>Gap</th><th>This app</th></tr>
-<tr><td>Cortellis, Evaluate, AlphaSense</td><td>Deep data, not tied to our cash or milestones</td><td>Evidence flagged against specific milestones</td></tr>
-<tr><td>Pigment, Planful</td><td>Finance without science or regulators</td><td>Funding test per scientific milestone</td></tr>
-<tr><td>Spreadsheets + search</td><td>No provenance, double counting, mixed currencies</td><td>Labels: internal, external, AI, assumption, synthetic</td></tr></table>
-<p class="muted">Sources and details in report.html §2</p></section>
+<section class="light"><div class="frame">
+<div class="kick">03 · Product</div>
+<h2>Built around the three questions a manager asks every week.</h2>
+<div class="grid" style="grid-template-columns:1.02fr 1fr;gap:18px;align-items:start">
+ <div class="card"><div class="lbl">Can we afford it?</div><h3>Deterministic runway, per milestone</h3><img class="shot" src="{S['spend']}" alt="Actual spend to date vs estimate to complete" style="margin:8px 0"><p>Actual spend to date vs estimate to complete; cash, burn and forecast from tested code, never from the AI.</p></div>
+ <div class="grid" style="gap:14px;align-content:start">
+  <div class="card"><div class="lbl">What changed outside?</div><h3>Evidence by pipeline</h3><img class="shot" src="{S['competitors']}" alt="Competitors by pipeline" style="margin:8px 0"><p>Competitors, products and latest movements; FDA CVM and EMA guidance quoted verbatim.</p></div>
+  <div class="card"><div class="lbl">Anything else?</div><h3>Ask in plain words</h3><img class="shot" src="{S['assistant']}" alt="Planning assistant answer" style="margin:8px 0"><p>12 read-only tools; every figure grounding-checked; cost shown per answer.</p></div>
+ </div>
+</div>
+</div>{foot(4, "product")}</section>
 
-<section><h2>Agent team (one backend)</h2>{DIAGRAM}</section>
+<section class="light"><div class="frame">
+<div class="kick">04 · Market</div>
+<h2>A growing niche that enterprise intelligence and planning tools don't serve.</h2>
+<div class="grid g3">
+ <div class="card metric"><div class="lbl">Veterinary oncology market, 2025</div><div class="num big" style="font-size:52px">$0.45–2.9B</div><p>Published estimates vary about 4× by publisher; growth clusters at <b>~10–12% a year</b>.</p></div>
+ <div class="card metric"><div class="lbl">Why demand grows</div><div class="num big" style="font-size:52px">1 in 4</div><p>dogs (and 1 in 5 cats) develop cancer in their lifetime: Veterinary Cancer Society estimate; pets live longer.</p></div>
+ <div class="card metric"><div class="lbl">Potential customers</div><div class="num big" style="font-size:52px">2,700+</div><p>animal-health startups in one 2024 industry sample (StartUs Insights), the pool our beachhead is drawn from.</p></div>
+</div>
+<div class="card" style="display:flex;gap:26px;align-items:center"><span class="tag teal">Beachhead</span><p style="font-size:18px;color:var(--ink)">Companion-animal drug developers with <b>1–5 programs</b>, multi-entity operations in <b>Hong Kong, mainland China and the US</b>, and regulators in several jurisdictions: our own situation at Ocra.</p></div>
+<div class="src">Sources: market ranges from <a href="https://www.gii.co.jp/report/tbrc1712766-veterinary-oncology-global-market-report.html">The Business Research Company</a>, <a href="https://www.towardshealthcare.com/insights/veterinary-oncology-market-sizing">Towards Healthcare</a>, <a href="https://www.researchandmarkets.com/reports/6262072/veterinary-oncology-market-opportunity-growth">Global Market Insights</a> (includes diagnostics and radiotherapy, so a therapeutics-only figure is smaller) · incidence: <a href="https://vcahospitals.com/vca-voice/cancer-insights">VCA citing the Veterinary Cancer Society</a>, <a href="https://wsava.org/updates/new-wsava-committee-to-target-veterinary-oncology/">WSAVA</a> (estimates; cancer is not reportable in pets) · startups: <a href="https://www.startus-insights.com/innovators-guide/animal-health-industry-report">StartUs Insights 2024</a></div>
+</div>{foot(5, "market")}</section>
 
-<section><h2>Demo: onboarding → runway</h2><div class="two">
-<div><img src="{S['classify']}" alt="Classification proposal"><p class="muted">Stated / inferred / unknown with verbatim evidence; user confirms</p></div>
-<div><img src="{S['runway']}" alt="Runway"><p class="muted">After the import: net burn $152K/mo, simple runway 7.2 mo, below reserve Feb 2027, pilot study gap ≈ $0.72M; actual to date vs estimate to complete per milestone</p></div></div></section>
+<section class="light"><div class="frame">
+<div class="kick">05 · Competition</div>
+<h2>The only tool that ties outside evidence to our own milestones and cash.</h2>
+<div class="grid" style="grid-template-columns:1.2fr 1fr;gap:26px;flex:1">
+ <div class="matrix">
+  <div class="q tr"></div>
+  <div class="ax" style="left:10px;top:-2px">↑ Fits a small vet team (cost, vet regulators)</div>
+  <div class="ax" style="right:6px;bottom:-26px">Connects to our milestones and cash →</div>
+  <div class="dot" style="left:22%;top:76%"><i></i><span>Cortellis · Evaluate · AlphaSense</span><small>deep data, enterprise price</small></div>
+  <div class="dot" style="left:66%;top:72%"><i></i><span>Pigment · Planful</span><small>finance without science</small></div>
+  <div class="dot" style="left:22%;top:30%"><i></i><span>Spreadsheets + web search</span><small>cheap, manual, no provenance</small></div>
+  <div class="dot us" style="left:76%;top:24%"><i></i><b>Ocra Pipeline Tracker</b><small>cents per day of model cost</small></div>
+ </div>
+ <div class="grid" style="gap:12px;align-content:start">
+  <div class="card"><h3>Milestone funding test</h3><p>Yes / no / unknown funding per milestone against the cash reserve, with the gap and its month.</p></div>
+  <div class="card"><h3>Evidence mapped to milestones</h3><p>Every item cited, dated, draft or final; flagged for human review, never auto-applied.</p></div>
+  <div class="card"><h3>Veterinary-aware scope</h3><p>FDA CVM vs USDA CVB; MARA, not NMPA, for Chinese veterinary drugs; EU limited-market route.</p></div>
+ </div>
+</div>
+<div class="src">Positioning is our judgment; product facts come from the vendors' public pages (report §2).</div>
+</div>{foot(6, "competition")}</section>
 
-<section><h2>Demo: evidence → answer</h2><div class="two">
-<div><img src="{S['regulatory']}" alt="Regulatory documents"><p class="muted">Official FDA CVM and EMA guidance mapped to a hypothetical program; milestones flagged, plan unchanged</p></div>
-<div><img src="{S['assistant']}" alt="Assistant answer"><p class="muted">Grounded answer with key figures from read-only tools and the trace</p></div></div></section>
+<section class="light"><div class="frame">
+<div class="kick">06 · Business model</div>
+<h2>Software margins: the AI costs about $1.50 per company per month.</h2>
+<div class="grid" style="grid-template-columns:1fr 1.25fr 1fr;gap:18px;align-items:start">
+ <div class="card metric"><span class="tag">Hypothesis to validate</span><div class="lbl" style="margin-top:6px">SaaS, per company</div><div class="num big">$300</div><p>per month for up to 5 users. To be tested with design partners; not yet validated.</p></div>
+ <div class="card"><div class="lbl">Cost to serve one company (5 users), per month</div>
+  <div class="bar-row"><span>Daily research (model)</span><div class="bar-track"><div class="bar-fill" style="width:6%;background:var(--teal)"></div></div><span class="v">$0.37</span></div>
+  <div class="bar-row"><span>Assistant chat (model)</span><div class="bar-track"><div class="bar-fill" style="width:17%;background:var(--teal)"></div></div><span class="v">$1.10</span></div>
+  <div class="bar-row"><span>Hosting share</span><div class="bar-track"><div class="bar-fill" style="width:78%;background:#2a5aa8"></div></div><span class="v">$2.5–5</span></div>
+  <div class="bar-row" style="border-top:1px dashed var(--line);padding-top:8px"><span><b>Total</b></span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--amber)"></div></div><span class="v"><b>≈ $4–6.5</b></span></div>
+  <p style="margin-top:10px">≈ <b>98% gross margin</b> at the hypothesis price. The binding constraints at scale are hosting and public-API rate limits, not tokens.</p></div>
+ <div class="card"><div class="lbl">Measured, live gpt-6-luna</div>
+  <p style="margin-top:8px"><span class="num mid">$0.008</span><br>one full live demo journey (7 agent runs)</p>
+  <p style="margin-top:10px"><span class="num" style="font-size:26px">$0.6 · $29 · $2.9K</span><br>model cost per month for 1 · 100 · 10,000 users</p></div>
+</div>
+<div class="card" style="display:flex;align-items:center;gap:26px;background:#0f2238;border-color:#0f2238"><span class="lbl" style="color:#2de2c4">Unit economics</span><p style="color:#e6f4f2;font-size:20px"><span class="num" style="color:#fff;font-size:26px">$300</span> revenue − <span class="num" style="color:#e8a04a;font-size:26px">≈$5</span> cost to serve = <span class="num" style="color:#2de2c4;font-size:26px">≈$295</span> contribution per company per month <span style="color:#8fb4c7;font-size:15px">(hypothesis price; estimated cost)</span></p></div>
+<div class="src">Estimates from measured runs and a dated price table ($0.10 / $0.01 / $0.50 per 1M input / cached / output tokens; third-party sources, not verified against course billing). Hosting share assumes 20 companies on a $50–100/month stack. Details: docs/cost_model.md.</div>
+</div>{foot(7, "business model")}</section>
 
-<section><h2>Costs (measured)</h2><ul>
-<li>Per run, live gpt-6-luna: <b>$0.0006</b> classification · <b>$0.0009</b> competitor refresh · <b>$0.0025</b> regulatory · <b>$0.0011</b> assistant</li>
-<li>Whole live demo journey: <b>≈ $0.008</b></li>
-<li>Estimates: <b>$0.6/mo</b> for 1 user · <b>$29/mo</b> for 100 users · <b>$2.9K/mo</b> for 10K users (model only; hosting and search extra)</li>
-<li>3 cache layers measured: app retrieval, <b>Portkey replay</b> (discovered, now tracked), provider prompt cache</li></ul>
-<p class="muted">Price from third-party sources ($0.10/$0.01/$0.50 per 1M); not verified against course billing</p></section>
+<section class="light"><div class="frame">
+<div class="kick">07 · Traction</div>
+<h2>Already in use by Ocra's scientists, and measured.</h2>
+<div class="grid" style="grid-template-columns:1fr 1.45fr;gap:20px;align-items:start">
+ <div class="card"><span class="tag teal">In use at Ocra</span><h3 style="margin-top:10px">Shaped by their feedback</h3><ul>
+  <li>Phase map with decision gates at every value-inflection point</li>
+  <li>Actual spend to date vs estimate to complete, per milestone</li>
+  <li>Competitors by pipeline: product and latest movement</li>
+  <li>Manager navigation, mission banner, Chinese version</li>
+  <li>Manager user manual</li></ul></div>
+ <div class="grid g3" style="align-content:start">
+  <div class="card metric"><div class="lbl">Classification</div><div class="num">{cls_live}</div><p>field accuracy, 10 labeled cases</p></div>
+  <div class="card metric"><div class="lbl">Regulatory relevance</div><div class="num">{e['regulatory']['precision']} / {e['regulatory']['recall']}</div><p>precision / recall on labeled FDA CVM titles</p></div>
+  <div class="card metric"><div class="lbl">Prompt injection</div><div class="num">{inj['secrets_leaked']} · {inj['records_changed']}</div><p>secrets leaked · records changed (5 live attacks)</p></div>
+  <div class="card metric"><div class="lbl">Tests</div><div class="num">52</div><p>automated tests pass, incl. finance and safety</p></div>
+  <div class="card metric"><div class="lbl">Fresh install</div><div class="num">15 s</div><p>clone → install → build → run (warm caches)</p></div>
+  <div class="card metric"><div class="lbl">Live journey</div><div class="num">$0.008</div><p>whole demo, all fresh model calls</p></div>
+ </div>
+</div>
+<div class="src">Evaluations are small and self-labeled (sanity checks, not benchmarks). Time savings have not been timed yet; the protocol is ready (docs/user_testing_protocol.md).</div>
+</div>{foot(8, "traction")}</section>
 
-<section><h2>Safety</h2><ul>
-<li>Agents have <b>no write tools</b>; business tools are read-only; fetching is limited to retrieved candidates</li>
-<li>Quarantine for instruction-like text · SSRF-safe retrieval · confidential query guard · secret filter · limits</li>
-<li>Live injection test, 5 variants: <span class="teal"><b>{inj['secrets_leaked']} secrets leaked, {inj['records_changed']} records changed</b></span>; simulated compromised model blocked</li>
-<li>Local prototype: accounts and roles needed before sharing</li></ul></section>
+<section class="light"><div class="frame">
+<div class="kick">08 · Roadmap</div>
+<h2>From internal tool to product in four steps.</h2>
+<div class="tl">
+ <div class="card now"><div class="lbl">Now · Q4 2026</div><h3>Internal prototype</h3><ul><li>Used by Ocra's scientists</li><li>Local, single user</li><li>5 agents, 12 read-only tools</li></ul></div>
+ <div class="card"><div class="lbl">Q1 2027 · plan</div><h3>Hosted pilot</h3><ul><li>Accounts and backend-enforced roles</li><li>HTTPS, Postgres, backups</li><li>Timed user study</li></ul></div>
+ <div class="card"><div class="lbl">Q2 2027 · plan</div><h3>Design partners</h3><ul><li>3–5 vet biotechs</li><li>Licensed news and CI data</li><li>MARA, MAFF and MFDS parsers</li></ul></div>
+ <div class="card"><div class="lbl">H2 2027 · plan</div><h3>Paid launch</h3><ul><li>Pricing validated</li><li>Partnering and licensing workflows</li><li>Weekly cash view, FX scenarios</li></ul></div>
+</div>
+<div class="card" style="display:flex;gap:18px;align-items:center"><span class="tag">Risks we track</span><p>Data security before sharing (no accounts yet) · source coverage for Asian regulators · model price unverified against course billing · paraphrased duplicate news (recall {e['dedupe']['recall']}).</p></div>
+</div>{foot(9, "roadmap")}</section>
 
-<section><h2>Impact and next steps</h2><ul>
-<li>Measured: classification {e['classification']['field_accuracy']['live']} field accuracy · regulatory precision {e['regulatory']['precision']} / recall {e['regulatory']['recall']} · all finance tests pass</li>
-<li><b>Ocra scientists already use it</b>; this round of changes came from their feedback (navigation, Chinese version, simpler budget and competitor views)</li>
-<li>Time savings <b>not yet timed</b>: protocol ready to run with them</li>
-<li>Next: accounts and roles · deeper Asian regulator parsing · licensed data sources · timed user testing</li></ul>
-<p class="repo-s">{repo_html(True)}</p><p class="muted">Run instructions: README.md in the repository</p></section>
+<section class="dark" data-background-gradient="radial-gradient(circle at 85% 12%, rgba(45,226,196,.32), transparent 42%), radial-gradient(circle at 5% 110%, rgba(232,160,74,.3), transparent 40%), linear-gradient(125deg, #0a1524, #0f2a3d 60%, #0b4b54)"><div class="frame" style="justify-content:center;gap:20px">
+<div class="kick">09 · Team and ask</div>
+<h2 style="color:#fff;font-size:48px">Never forget our starting point: all life matters.</h2>
+<div class="grid g2" style="gap:18px">
+ <div class="card"><div class="lbl">Team</div><h3>Sheila Wang</h3><p>Co-Founder &amp; CEO, Ocra Biotechnology (veterinary oncology). Product owner and first user. Built with Claude Code; the app calls gpt-6-luna through the course Portkey gateway.</p></div>
+ <div class="card"><div class="lbl">What we need next</div><ul><li><b>3–5 design partners</b> among animal-health biotechs</li><li>Access to licensed competitive-intelligence data</li><li>A security review before any shared deployment</li></ul></div>
+</div>
+<div class="repo-s">{repo_html(True)} · run instructions: README.md</div>
+</div>{foot(10, "team and ask")}</section>
 
 </div></div>
 <script>{js}</script>
-<script>Reveal.initialize({{hash:true,progress:true,controls:true,slideNumber:'c/t',center:false,width:1280,height:760,margin:0.06,transition:'fade'}});</script>
+<script>Reveal.initialize({{hash:true,progress:true,slideNumber:false,center:false,width:1280,height:720,margin:0,transition:'fade',controls:false,backgroundTransition:'fade'}});</script>
 </body></html>"""
 
 
