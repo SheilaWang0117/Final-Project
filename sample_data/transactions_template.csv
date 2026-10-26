@@ -1,0 +1,3 @@
+Date,Description,Counterparty,Amount,Currency,Program,Milestone,Category,Account,Reference
+2026-01-15,EXAMPLE - CRO invoice 001,Example CRO,"-12,500.00",USD,PROGRAM-CODE,Milestone name,CRO services,Your account name,INV-001
+2026-01-20,EXAMPLE - refund of reagent overcharge,Example supplier,300.00,USD,,,,Your account name,CN-17

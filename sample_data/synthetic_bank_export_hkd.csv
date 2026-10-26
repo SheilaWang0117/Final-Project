@@ -1,0 +1,11 @@
+Date,Description,Counterparty,Amount,Currency,Program,Milestone,Category,Account,Reference
+2026-09-05,Payroll September,Payroll provider (synthetic),"-300,000.00",HKD,shared,,Personnel,HK operating account (HKD),PAY-0926
+2026-09-22,Screening reagents,Reagent supplier (synthetic),"-180,000.00",HKD,HX-205,Lead compound selection,Research,HK operating account (HKD),RG-0922
+2026-09-25,Refund of reagent overcharge,Reagent supplier (synthetic),"12,000.00",HKD,HX-205,Lead compound selection,Research,HK operating account (HKD),CN-0925
+2026-09-28,Intercompany transfer to US entity,Own account,"-389,000.00",HKD,,,,HK operating account (HKD),TRF-0928
+2026-10-05,Payroll October,Payroll provider (synthetic),"-300,000.00",HKD,shared,,Personnel,HK operating account (HKD),PAY-1026
+2026-10-12,Bank charges,Bank (synthetic),"-1,250.00",HKD,,,,HK operating account (HKD),BC-1012
+2026-10-14,Grant received (synthetic innovation grant),Government fund (synthetic),"200,000.00",HKD,,,,HK operating account (HKD),GR-1014
+2026-10-18,Courier,Courier (synthetic),abc,HKD,,,,HK operating account (HKD),ERR-1018
+2026-10-20,Screening reagents,Reagent supplier (synthetic),"-150,000.00",HKD,HX-205,Lead compound selection,Research,HK operating account (HKD),RG-1020
+2026-09-05,Payroll September,Payroll provider (synthetic),"-300,000.00",HKD,shared,,Personnel,HK operating account (HKD),PAY-0926

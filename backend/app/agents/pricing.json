@@ -1,0 +1,17 @@
+{
+  "note": "Costs are ESTIMATES computed from this dated table. Edit when official or course billing prices are confirmed. If a model is missing here, cost is recorded as unknown.",
+  "models": {
+    "gpt-6-luna": {
+      "input_usd_per_mtok": "0.10",
+      "cached_input_usd_per_mtok": "0.01",
+      "output_usd_per_mtok": "0.50",
+      "long_context_note": "Third-party sources report a higher tier above 272K prompt tokens ($0.20 / $0.02 / $0.75); this app caps prompts far below that.",
+      "as_of": "2026-10-24",
+      "sources": [
+        "https://www.eesel.ai/blog/gpt-6-luna-pricing",
+        "https://anotherwrapper.com/llm-pricing/gpt-6-luna"
+      ],
+      "verification": "Third-party aggregators that cite OpenAI's pricing page; not verified directly against OpenAI or Portkey course billing. Reasoning tokens are billed as output tokens."
+    }
+  }
+}

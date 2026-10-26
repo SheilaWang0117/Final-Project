@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- macOS launchd job: runs the daily research job at 07:15 local time.
+     1. Replace /ABSOLUTE/PATH/TO/Final Project with your path.
+     2. cp scripts/com.ocra.pipeline.daily.plist.example ~/Library/LaunchAgents/com.ocra.pipeline.daily.plist
+     3. launchctl load ~/Library/LaunchAgents/com.ocra.pipeline.daily.plist
+     launchd runs a missed job when the Mac wakes, but nothing runs while it is shut down. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.ocra.pipeline.daily</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/ABSOLUTE/PATH/TO/Final Project/scripts/run_daily.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>15</integer></dict>
+  <key>StandardErrorPath</key><string>/tmp/ocra_daily.err</string>
+</dict>
+</plist>

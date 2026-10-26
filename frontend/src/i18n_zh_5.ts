@@ -1,0 +1,25 @@
+// Strings for the simplified budget and competitor views (round of scientist feedback).
+export const ZH5: Record<string, string> = {
+  "Start here: cash, burn, runway, and spending by pipeline and milestone.": "从这里开始：现金、消耗、跑道，以及各管线和里程碑的支出。",
+  "No pipelines yet": "暂无管线",
+  "Add a program in Pipelines.": "请在“管线”中添加项目。",
+  "No milestones yet.": "暂无里程碑。",
+  "Other program costs (not tied to a milestone)": "其他项目费用（未关联里程碑）",
+  "approved budget {b}": "已批准预算 {b}",
+  "draft budget {b}": "草案预算 {b}",
+  "No budget yet — add one in Milestone budgets.": "尚无预算——请在“里程碑预算”中添加。",
+  "Competitors by pipeline": "各管线的竞争对手",
+  "Start here: who competes with each pipeline, their product, and their latest move.": "从这里开始：每条管线的竞争对手、其产品及最新动态。",
+  "All news": "全部动态",
+  "Follow-ups": "跟进事项",
+  "Add or manage competitors": "添加或管理竞争对手",
+  "All news for {c} →": "{c} 的全部动态 →",
+  "No competitors tracked yet. Add one under \"Add or manage competitors\", or refresh research for this pipeline.": "尚未跟踪竞争对手。可在“添加或管理竞争对手”中添加，或刷新此管线的研究。",
+  "Competitor": "竞争对手",
+  "AI-suggested": "AI 建议",
+  "Latest movement": "最新动态",
+  "No movement captured yet. Refresh research to check public sources.": "尚未捕获动态。刷新研究以检查公开来源。",
+  "Only public sources this app searched are shown; this is not a complete record of competitor activity.": "仅显示本应用检索过的公开来源，并非竞争对手活动的完整记录。",
+
+  "Latest related news (not tied to a named competitor)": "最新相关动态（未关联具体竞争对手）",
+};

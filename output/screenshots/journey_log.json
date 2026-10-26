@@ -1,0 +1,27 @@
+{
+ "screens": [
+  "01_overview_before",
+  "02_classification_proposal",
+  "03_pipelines_three",
+  "04_milestone_budgets",
+  "05_import_review",
+  "06_import_reconciliation",
+  "07_import_committed",
+  "08_budget_runway",
+  "09_scenario_delay",
+  "10_program_research_done",
+  "11_competitors_by_pipeline",
+  "11b_competitor_events",
+  "12_action_queue",
+  "13_regulatory_documents",
+  "14_regulatory_coverage",
+  "15a_briefing_popup",
+  "15_daily_briefing",
+  "16_markets_partners",
+  "17_assistant_answer",
+  "18_agent_runs_usage",
+  "19_overview_after",
+  "20_pipelines_phase_map"
+ ],
+ "browser_errors": []
+}

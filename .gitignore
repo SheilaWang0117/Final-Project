@@ -1,0 +1,25 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Databases, uploads, caches (may contain confidential financial data)
+data/
+*.db
+*.db-wal
+*.db-shm
+backend/data/
+
+# Python / Node
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+
+# demo video renders (large binaries)
+output/video/

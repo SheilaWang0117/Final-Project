@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-ai-slim[openai]
+python-dotenv
+httpx
+openpyxl
+feedparser
+defusedxml
+beautifulsoup4
+pypdf
+python-multipart
+tzdata
